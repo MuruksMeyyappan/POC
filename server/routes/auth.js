@@ -14,13 +14,13 @@ router.post("/login", async (req, res) => {
     console.log("user ---->", user);
     // checking if the user exists
     if (!user) {
-      return res.status(400).send("User doesn't exists");
+      return res.status(400).json({ message: "Invalid Password" });
     }
   
     // checking if the password is correct
   
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass) return res.status(400).send("Invalid Password");
+    if (!validPass) return res.status(400).json({ message: "Invalid Password" });
     try {
       // const data = post.save();
       res.status(200).json({ status: 200 });

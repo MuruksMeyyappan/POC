@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useInput from "./HelperFunction/useInput.js";
+import { useDispatch, useSelector } from "react-redux";
 import "./Register.css";
 import { makeStyles } from "@material-ui/core/styles";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
+import { registerAction } from "./store/action";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,18 +33,46 @@ function Register() {
   const [userName, bindUserName] = useInput("");
   const [password, bindPassword] = useInput("");
   const [firstName, bindFirstName] = useInput("");
-  const [lastName, bindLastName,] = useInput("");
+  const [respDetails, setRespDetails] = useState("");
+  const [lastName, bindLastName] = useInput("");
   const [email, bindEmail] = useInput("");
   const classes = useStyles();
+  const registerRespDetails = useSelector((state) =>
+    state && state.RegisterReducers && state.RegisterReducers.payload
+      ? state.RegisterReducers.payload
+      : ""
+  );
+  console.log("registerRespDetails -------> ", registerRespDetails);
+
+  useEffect(() => {
+    if (!registerRespDetails) return;
+    if (registerRespDetails.status === 200) {
+      window.location.href = "/";
+    } else {
+      setRespDetails(registerRespDetails);
+    }
+  }, [registerRespDetails]);
+
+  const dispatch = useDispatch();
 
   const handleRegister = () => {
-      console.log("Username ->",userName);
-      console.log("Password ->", password);
-      console.log("firstName ->",firstName);
-      console.log("lastName ->", lastName);
-      console.log("email ->", email);
+    console.log("Username ->", userName);
+    console.log("Password ->", password);
+    console.log("firstName ->", firstName);
+    console.log("lastName ->", lastName);
+    console.log("email ->", email);
+
+    dispatch(
+      registerAction.registerUserRequest({
+        userName,
+        password,
+        firstName,
+        lastName,
+        email,
+      })
+    );
   };
-  
+
   return (
     <div>
       <div className="RegisterTitle">Sign up</div>

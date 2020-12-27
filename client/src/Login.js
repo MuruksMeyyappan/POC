@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Typography from "@material-ui/core/Typography";
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import  {loginAction}  from "./store/action";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -30,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-  signingFormate : {
+  signingFormate: {
     margin: "0 10px",
     boxShadow: "none",
   },
@@ -39,13 +41,35 @@ const useStyles = makeStyles((theme) => ({
 function Login() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [loginDetails, setLoginDetails] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
   const classes = useStyles();
 
+  const userDetails = useSelector((state) =>state && state.LoginReducers && state.LoginReducers.payload ? state.LoginReducers.payload : "");
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (!userDetails) return;
+    if (userDetails.status === 200) {
+      setLoginDetails(userDetails.user);
+      console.log("loginDetails -->", loginDetails);
+      window.location.href = "/Register";
+    } else {
+      setErrorMessage(userDetails.message);
+      console.log("errorMessage inside the loop -->", errorMessage);
+    }
+  }, [userDetails,loginDetails,errorMessage]);
 
   const handleLogin = () => {
-    console.log("Username->",userName, "Password ->",password);
+    console.log("Username->", userName, "Password ->", password);
+    dispatch(
+      loginAction.loginUserRequest({
+        userName,
+        password,
+      })
+    );
   };
+
   const goToRegisterPage = () => {
     window.location.href = "/Register";
   };
@@ -54,7 +78,13 @@ function Login() {
       <Grid className={classes.gridStyle} xs={8}>
         <Paper className={classes.paper}>
           <Grid item xs={6} className={classes.image}></Grid>
-          <Grid item xs={6} component={Paper} className={classes.signingFormate}square>
+          <Grid
+            item
+            xs={6}
+            component={Paper}
+            className={classes.signingFormate}
+            square
+          >
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
